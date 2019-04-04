@@ -199,6 +199,12 @@ export default class extends PureComponent {
         const onChange = Component.props.onChange;
         const onSelectionChange = Component.props.onSelectionChange;
         const onContentSizeChange = Component.props.onContentSizeChange;
+        const onLayout = Component.props.onLayout;
+
+        Component.props.onLayout = event => {
+            this._onLayout(event);
+            onLayout && onLayout(event);
+        };
 
         Component.props.onChange = event => {
             this._onChange(event);
@@ -295,11 +301,13 @@ export default class extends PureComponent {
             (isAncestor) => {
                 if (!isAncestor) return;
 
-                const { text, selectionEnd, width, height } = this._getInputInfo(curFocusTarget);
+                const { text, selectionEnd, width, contentHeight, layoutHeight } = this._getInputInfo(curFocusTarget);
                 const cursorAtLastLine = !text ||
                     selectionEnd === undefined ||
                     text.length === selectionEnd;
-
+                // FIX: use the layout height instead of the content height
+                // so that it works with minHeight or maxHeight
+                const height = layoutHeight;
                 if (cursorAtLastLine) {
                     return this._scrollToKeyboard(curFocusTarget, 0);
                 }
@@ -440,12 +448,18 @@ export default class extends PureComponent {
         const target = event.target || event.currentTarget;
         const inputInfo = this._getInputInfo(target);
         inputInfo.width = event.nativeEvent.contentSize.width;
-        inputInfo.height = event.nativeEvent.contentSize.height;
+        inputInfo.contentHeight = event.nativeEvent.contentSize.height;
         if (inputInfo.text === undefined) {
             inputInfo.text = getProps(event._targetInst).value;
         }
         this._scrollToKeyboardRequest(true);
     };
+
+    _onLayout = event => {
+        const target = event.target || event.currentTarget;
+        const inputInfo = this._getInputInfo(target);
+        inputInfo.layoutHeight = event.nativeEvent.layout.height;
+    }
 }
 
 function focus(targetTag) {
