@@ -133,7 +133,7 @@ export default class extends PureComponent {
                     <ScrollComponent ref={this._onRef}
                                      onFocus={this._onFocus}
                                      onBlur={this._onBlur} {...otherProps}>
-                        <View onStartShouldSetResponderCapture={isIOS ? this._onTouchStart : null}>
+                        <View style={styles.scrollContent} onStartShouldSetResponderCapture={isIOS ? this._onTouchStart : null}>
                             {newChildren}
                             <View style={styles.hidden}
                                   pointerEvents="none">
@@ -492,4 +492,7 @@ const styles = StyleSheet.create({
         left: 0,
         opacity: 0,
     },
+    scrollContent: {
+        flex: 1
+    }
 });
