@@ -72,14 +72,16 @@ export default class extends PureComponent {
             PropTypes.number,
         ]),
         useAnimatedScrollView: PropTypes.bool,
-        keyboardAvoidingViewProps: PropTypes.object
+        keyboardAvoidingViewProps: PropTypes.object,
+        noKAV: PropTypes.bool
     };
 
     static defaultProps = {
         keyboardOffset: 40,
         multilineInputStyle: null,
         useAnimatedScrollView: false,
-        keyboardAvoidingViewProps: null
+        keyboardAvoidingViewProps: null,
+        noKAV: false
     };
 
     state = {
@@ -112,6 +114,7 @@ export default class extends PureComponent {
             useAnimatedScrollView,
             keyboardAvoidingViewProps,
             children,
+            noKAV,
             ...otherProps
         } = this.props;
 
@@ -125,31 +128,50 @@ export default class extends PureComponent {
 
         const newChildren = this._cloneDeepComponents(children);
 
-        const ScrollComponent = useAnimatedScrollView ? Animated.ScrollView : ScrollView;
+        const ScrollComponent = useAnimatedScrollView
+            ? Animated.ScrollView
+            : ScrollView;
 
-        return (
-            <KeyboardAvoidingView {...kavProps}>
-                <View style={styles.wrap}>
-                    <ScrollComponent ref={this._onRef}
-                                     onFocus={this._onFocus}
-                                     onBlur={this._onBlur} {...otherProps}>
-                        <View style={styles.scrollContent} onStartShouldSetResponderCapture={isIOS ? this._onTouchStart : null}>
-                            {newChildren}
-                            <View style={styles.hidden}
-                                  pointerEvents="none">
-                                {
-                                    measureInputVisible &&
-                                    <TextInput style={[multilineInputStyle, { width: measureInputWidth }]}
-                                               value={measureInputValue}
-                                               onContentSizeChange={this._onContentSizeChangeMeasureInput}
-                                               editable={false}
-                                               multiline />
-                                }
-                            </View>
+        const content = (
+            <View style={styles.wrap}>
+                <ScrollComponent
+                    ref={this._onRef}
+                    onFocus={this._onFocus}
+                    onBlur={this._onBlur}
+                    {...otherProps}
+                >
+                    <View
+                        style={styles.scrollContent}
+                        onStartShouldSetResponderCapture={
+                            isIOS ? this._onTouchStart : null
+                        }
+                    >
+                        {newChildren}
+                        <View style={styles.hidden} pointerEvents="none">
+                            {measureInputVisible && (
+                                <TextInput
+                                    style={[
+                                        multilineInputStyle,
+                                        { width: measureInputWidth }
+                                    ]}
+                                    value={measureInputValue}
+                                    onContentSizeChange={
+                                        this._onContentSizeChangeMeasureInput
+                                    }
+                                    editable={false}
+                                    multiline
+                                />
+                            )}
                         </View>
-                    </ScrollComponent>
-                </View>
-            </KeyboardAvoidingView>
+                    </View>
+                </ScrollComponent>
+            </View>
+        );
+
+        return noKAV ? (
+            content
+        ) : (
+            <KeyboardAvoidingView {...kavProps}>{content}</KeyboardAvoidingView>
         );
     }
 
