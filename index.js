@@ -4,8 +4,8 @@
  * @license MIT
  */
 
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { PureComponent } from "react";
+import PropTypes from "prop-types";
 import {
     StyleSheet,
     View,
@@ -15,10 +15,10 @@ import {
     Keyboard,
     Platform,
     Animated,
-    UIManager,
-} from 'react-native';
+    UIManager
+} from "react-native";
 
-const isIOS = Platform.OS === 'ios';
+const isIOS = Platform.OS === "ios";
 
 let debounce;
 
@@ -69,7 +69,7 @@ export default class extends PureComponent {
         multilineInputStyle: PropTypes.oneOfType([
             PropTypes.object,
             PropTypes.array,
-            PropTypes.number,
+            PropTypes.number
         ]),
         useAnimatedScrollView: PropTypes.bool,
         keyboardAvoidingViewProps: PropTypes.object,
@@ -86,8 +86,8 @@ export default class extends PureComponent {
 
     state = {
         measureInputVisible: false,
-        measureInputValue: '',
-        measureInputWidth: 0,
+        measureInputValue: "",
+        measureInputWidth: 0
     };
 
     componentWillMount() {
@@ -118,12 +118,15 @@ export default class extends PureComponent {
             ...otherProps
         } = this.props;
 
-        const kavProps = Object.assign({ behavior: isIOS ? 'padding' : null }, keyboardAvoidingViewProps);
+        const kavProps = Object.assign(
+            { behavior: isIOS ? "padding" : null },
+            keyboardAvoidingViewProps
+        );
 
         const {
             measureInputVisible,
             measureInputValue,
-            measureInputWidth,
+            measureInputWidth
         } = this.state;
 
         const newChildren = this._cloneDeepComponents(children);
@@ -176,8 +179,14 @@ export default class extends PureComponent {
     }
 
     _addListener() {
-        this._keyboardShowListener = Keyboard.addListener(isIOS ? 'keyboardWillShow' : 'keyboardDidShow', this._onKeyboardShow);
-        this._keyboardHideListener = Keyboard.addListener(isIOS ? 'keyboardWillHide' : 'keyboardDidHide', this._onKeyboardHide);
+        this._keyboardShowListener = Keyboard.addListener(
+            isIOS ? "keyboardWillShow" : "keyboardDidShow",
+            this._onKeyboardShow
+        );
+        this._keyboardHideListener = Keyboard.addListener(
+            isIOS ? "keyboardWillHide" : "keyboardDidHide",
+            this._onKeyboardHide
+        );
     }
 
     _removeListener() {
@@ -188,10 +197,7 @@ export default class extends PureComponent {
     }
 
     _extendScrollViewFunc() {
-        const funcArray = [
-            'scrollTo',
-            'scrollToEnd',
-        ];
+        const funcArray = ["scrollTo", "scrollToEnd"];
 
         funcArray.forEach(funcName => {
             this[funcName] = (...args) => {
@@ -202,11 +208,15 @@ export default class extends PureComponent {
 
     _cloneDeepComponents(Component) {
         if (Component instanceof Array) {
-            return Component.map(subComponent => this._cloneDeepComponents(subComponent));
+            return Component.map(subComponent =>
+                this._cloneDeepComponents(subComponent)
+            );
         } else if (Component && Component.props && Component.props.children) {
             const newComponent = { ...Component };
             newComponent.props = { ...Component.props };
-            newComponent.props.children = this._cloneDeepComponents(Component.props.children);
+            newComponent.props.children = this._cloneDeepComponents(
+                Component.props.children
+            );
             return newComponent;
         } else if (Component && Component.props && Component.props.multiline) {
             const newComponent = { ...Component };
@@ -242,8 +252,7 @@ export default class extends PureComponent {
             } else {
                 setTimeout(() => this._onSelectionChange(event));
             }
-            onSelectionChange &&
-            onSelectionChange(event);
+            onSelectionChange && onSelectionChange(event);
         };
 
         /**
@@ -260,7 +269,7 @@ export default class extends PureComponent {
     }
 
     _getInputInfo(target) {
-        return this._inputInfoMap[target] = this._inputInfoMap[target] || {};
+        return (this._inputInfoMap[target] = this._inputInfoMap[target] || {});
     }
 
     _measureCursorPosition(text, width, callback) {
@@ -268,7 +277,7 @@ export default class extends PureComponent {
         this.setState({
             measureInputVisible: true,
             measureInputValue: text,
-            measureInputWidth: width,
+            measureInputWidth: width
         });
     }
 
@@ -296,10 +305,10 @@ export default class extends PureComponent {
 
         const getTopOffset = () => {
             this.props.topOffset === undefined &&
-            this._root._innerViewRef &&
-            this._root._innerViewRef.measureInWindow((x, y) => {
-                this._topOffset = y;
-            });
+                this._root._innerViewRef &&
+                this._root._innerViewRef.measureInWindow((x, y) => {
+                    this._topOffset = y;
+                });
         };
 
         setTimeout(getTopOffset);
@@ -320,11 +329,18 @@ export default class extends PureComponent {
         UIManager.viewIsDescendantOf(
             curFocusTarget,
             scrollResponder.getInnerViewNode(),
-            (isAncestor) => {
+            isAncestor => {
                 if (!isAncestor) return;
 
-                const { text, selectionEnd, width, contentHeight, layoutHeight } = this._getInputInfo(curFocusTarget);
-                const cursorAtLastLine = !text ||
+                const {
+                    text,
+                    selectionEnd,
+                    width,
+                    contentHeight,
+                    layoutHeight
+                } = this._getInputInfo(curFocusTarget);
+                const cursorAtLastLine =
+                    !text ||
                     selectionEnd === undefined ||
                     text.length === selectionEnd;
                 // FIX: use the layout height instead of the content height
@@ -349,8 +365,13 @@ export default class extends PureComponent {
     };
 
     _scrollToKeyboard = (target, offset) => {
-        const toKeyboardOffset = this._topOffset + this.props.keyboardOffset - offset;
-        this._root.scrollResponderScrollNativeHandleToKeyboard(target, toKeyboardOffset, true);
+        const toKeyboardOffset =
+            this._topOffset + this.props.keyboardOffset - offset;
+        this._root.scrollResponderScrollNativeHandleToKeyboard(
+            target,
+            toKeyboardOffset,
+            true
+        );
     };
 
     _onKeyboardShow = () => {
@@ -373,9 +394,13 @@ export default class extends PureComponent {
         if (target === this._curFocus) return false;
 
         const targetInst = event._targetInst;
-        const uiViewClassName = targetInst.type || // >= react-native 0.49
-            targetInst.viewConfig.uiViewClassName; // <= react-native 0.48
-        return uiViewClassName === 'RCTTextField' || uiViewClassName === 'RCTTextView' || uiViewClassName === 'RCTMultilineTextInputView';
+        const uiViewClassName =
+            targetInst.type || targetInst.viewConfig.uiViewClassName; // >= react-native 0.49 // <= react-native 0.48
+        return (
+            uiViewClassName === "RCTTextField" ||
+            uiViewClassName === "RCTTextView" ||
+            uiViewClassName === "RCTMultilineTextInputView"
+        );
     };
 
     /**
@@ -424,7 +449,7 @@ export default class extends PureComponent {
     _onBlur = event => {
         const target = event.target || event.currentTarget;
         if (this._curFocus === target) this._curFocus = null;
-    }
+    };
 
     /**
      * onChange 在 onContentSizeChange 之前触发
@@ -435,7 +460,7 @@ export default class extends PureComponent {
         const target = event.target || event.currentTarget;
         const inputInfo = this._getInputInfo(target);
         inputInfo.text = event.nativeEvent.text;
-    }
+    };
 
     /**
      * onSelectionChange 在 keyboardDidShow 之前触发
@@ -481,7 +506,7 @@ export default class extends PureComponent {
         const target = event.target || event.currentTarget;
         const inputInfo = this._getInputInfo(target);
         inputInfo.layoutHeight = event.nativeEvent.layout.height;
-    }
+    };
 }
 
 function focus(targetTag) {
@@ -493,26 +518,27 @@ function focus(targetTag) {
         UIManager.dispatchViewManagerCommand(
             targetTag,
             UIManager.AndroidTextInput.Commands.focusTextInput,
-            null,
+            null
         );
     }
 }
 
 function getProps(targetNode) {
-    return targetNode.memoizedProps || // >= react-native 0.49
-        targetNode._currentElement.props; // <= react-native 0.48
+    return (
+        targetNode.memoizedProps || targetNode._currentElement.props // >= react-native 0.49
+    ); // <= react-native 0.48
 }
 
 const styles = StyleSheet.create({
     wrap: {
-        height: '100%',
+        flex: 1
     },
 
     hidden: {
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
-        opacity: 0,
+        opacity: 0
     },
     scrollContent: {
         flex: 1
